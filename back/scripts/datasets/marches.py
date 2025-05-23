@@ -197,46 +197,40 @@ class MarchesPublicsSchemaLoader:
     """
 
     @tracker(ulogger=LOGGER, log_start=True)
-    @staticmethod
-    def load(url: str, type_marche: str) -> pd.DataFrame:
+    @classmethod
+    def load(cls, url: str, type_marche: str) -> pd.DataFrame:
         with tempfile.TemporaryDirectory() as tmpdirname:
             json_filename = Path(tmpdirname) / "schema.json"
             urlretrieve(url, json_filename)
 
             with open(json_filename) as f:
                 schema = json.load(f)
-                return MarchesPublicsSchemaLoader._schema_to_frame(schema, type_marche)
+                return cls._schema_to_frame(schema, type_marche)
 
-    @staticmethod
-    def _schema_to_frame(schema: dict, type_marche: str) -> pd.DataFrame:
+    @classmethod
+    def _schema_to_frame(cls, schema: dict, type_marche: str) -> pd.DataFrame:
         definitions = schema["definitions"][type_marche]["definitions"]
         properties = schema["definitions"][type_marche]["properties"]
 
         content = [
-            MarchesPublicsSchemaLoader._flatten_schema_property(prop, details, definitions)
+            cls._flatten_schema_property(prop, details, definitions)
             for prop, details in properties.items()
         ]
         return pd.DataFrame.from_records(itertools.chain(*content))
 
-    @staticmethod
-    def _flatten_schema_property(prop, details, root_definitions):
+    @classmethod
+    def _flatten_schema_property(cls, prop, details, root_definitions):
         if "$ref" in details:
-            return MarchesPublicsSchemaLoader._flatten_schema_ref(
-                prop, details, root_definitions
-            )
+            return cls._flatten_schema_ref(prop, details, root_definitions)
         elif details.get("type") == "array":
-            return MarchesPublicsSchemaLoader._flatten_schema_array(
-                prop, details, root_definitions
-            )
+            return cls._flatten_schema_array(prop, details, root_definitions)
         elif details.get("type") == "object" and "properties" in details:
-            return MarchesPublicsSchemaLoader._flatten_schema_object(
-                prop, details, root_definitions
-            )
+            return cls._flatten_schema_object(prop, details, root_definitions)
         else:
             return [{"property": prop, **details}]
 
-    @staticmethod
-    def _flatten_schema_ref(prop, details, root_definitions):
+    @classmethod
+    def _flatten_schema_ref(cls, prop, details, root_definitions):
         ref_path = details["$ref"].split("/")
         ref_detail = root_definitions
         # Traverse the reference path to get the details of the reference
@@ -245,33 +239,27 @@ class MarchesPublicsSchemaLoader:
 
         # If the reference points to a structure with 'properties', treat it as an object
         if "properties" in ref_detail:
-            return MarchesPublicsSchemaLoader._flatten_schema_object(
-                prop, ref_detail, root_definitions
-            )
+            return cls._flatten_schema_object(prop, ref_detail, root_definitions)
 
-        return MarchesPublicsSchemaLoader._flatten_schema_property(
-            prop, ref_detail, root_definitions
-        )
+        return cls._flatten_schema_property(prop, ref_detail, root_definitions)
 
-    @staticmethod
-    def _flatten_schema_array(prop, details, root_definitions):
+    @classmethod
+    def _flatten_schema_array(cls, prop, details, root_definitions):
         if "items" in details:
             if "$ref" in details["items"]:
-                return MarchesPublicsSchemaLoader._flatten_schema_ref(
-                    prop, details["items"], root_definitions
-                )
+                return cls._flatten_schema_ref(prop, details["items"], root_definitions)
             elif "properties" in details["items"]:
-                return MarchesPublicsSchemaLoader._flatten_schema_object(
+                return cls._flatten_schema_object(
                     prop, details, root_definitions
                 )  # Abnormal case: If the items are objects, treat them as such
         return [{"property": prop}]
 
-    @staticmethod
-    def _flatten_schema_object(prop, details, root_definitions):
+    @classmethod
+    def _flatten_schema_object(cls, prop, details, root_definitions):
         flattened_schema = []
         for sub_prop, sub_details in details["properties"].items():
             flattened_schema.extend(
-                MarchesPublicsSchemaLoader._flatten_schema_property(
+                cls._flatten_schema_property(
                     f"{prop}.{sub_prop}", sub_details, root_definitions
                 )
             )
