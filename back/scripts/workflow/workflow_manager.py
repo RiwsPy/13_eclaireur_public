@@ -50,17 +50,17 @@ class WorkflowManager:
 
     def get_workflows(self) -> list:
         return [
-            CPVLabelsWorkflow,
+            # CPVLabelsWorkflow,
             SireneWorkflow,
-            FinancialAccountsWorkflowFactory.from_config,
-            ElectedOfficialsWorkflow.from_config,
-            DeclaInteretWorkflow,
+            # FinancialAccountsWorkflowFactory.from_config,
+            # ElectedOfficialsWorkflow.from_config,
+            # DeclaInteretWorkflow,
             OfglWorkflowFactory.from_config,
             CommunitiesSelector,
             DataGouvCatalog,
-            MarchesPublicsWorkflow.from_config,
+            # MarchesPublicsWorkflow.from_config,
             DataGouvSearcher,
-            CommunitiesContact,
+            # CommunitiesContact,
         ]
 
     def run_workflow(self) -> None:

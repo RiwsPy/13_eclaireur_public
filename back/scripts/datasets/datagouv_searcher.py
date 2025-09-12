@@ -56,6 +56,9 @@ class DataGouvSearcher(BaseDataset):
         LOGGER.info(
             f"Nombre de datasets correspondant au filtre de titre : {flagged_by_title.sum()}"
         )
+        LOGGER.info(
+            f"Nombre de datasets (cumul) : {len(self.catalog[flagged_by_title | flagged_by_description])}"
+        )
         return self.catalog[flagged_by_title | flagged_by_description]
 
     def _select_prefered_format(self, df: pd.DataFrame) -> pd.DataFrame:
