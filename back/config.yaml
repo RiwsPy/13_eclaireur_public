@@ -23,12 +23,14 @@ datagouv_search:
   data_folder: back/data/datagouv_search
   combined_filename: back/data/datagouv_search/datagouv_datasets.parquet
   title_filter:
-    - conventions de subvention
-    - subv.*asso
-    - subvention.*association
-    - subventions du conseil régional
+    # - conventions de subvention
+    # - subv.*asso
+    # - subvention.*association
+    # - subventions du conseil régional
+    # - interventions de la région des pays de la Loire
+    # - scdl - subventions
+    - subvention
     - interventions de la région des pays de la Loire
-    - scdl - subventions
   description_filter:
     - conventions de subvention
     - subvention.*association
